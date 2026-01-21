@@ -1,0 +1,97 @@
+
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f8f8f8;
+    margin: 0;
+    padding: 0;
+}
+.container {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    background: #333;
+    color: #fff;
+    padding: 10px 20px;
+}
+.navbar a {
+    color: #fff;
+    margin-left: 15px;
+    text-decoration: none;
+}
+.navbar .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+input, button, select, textarea {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+button {
+    background: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+button:hover {
+    background: #0056b3;
+}
+.comment {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 15px;
+    background: #fafafa;
+}
+.comment-actions button {
+    margin-right: 10px;
+}
+.google-review {
+    padding: 10px;
+    border-left: 4px solid #ccc;
+    margin-bottom: 10px;
+    background: #f4f4f4;
+}
+.place-info ul {
+    margin-top: 5px;
+    padding-left: 20px;
+}
+.place-list li {
+    margin-bottom: 8px;
+}
+
+/* Активные стили по цвету */
+.sidebar ul li.active-home {
+    background: #c084fc; /* фиолетовый */
+}
+
+.sidebar ul li.active-canteen {
+    background: #fcae61; /* пастельный оранжевый */
+}
+
+.sidebar ul li.active-alt {
+    background: #91caff; /* пастельный синий */
+}
+
+.sidebar ul li.active-user {
+    background: #aaaaff; /* пастельный фиолетово-синий */
+}
+
+.sidebar ul li:hover {
+    background: #e0e0e0;
+}

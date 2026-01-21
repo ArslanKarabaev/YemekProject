@@ -1,0 +1,8 @@
+<h2>Вход</h2>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Войти</button>
+<!--  <a href="{% url 'login' %}?next={% url 'place_detail' place_id='some-id' %}">Войти</a>-->
+  <p>До сих пор нет аккаунта? <a href="{% url 'register' %}">Создать аккаунт</a></p>
+</form>

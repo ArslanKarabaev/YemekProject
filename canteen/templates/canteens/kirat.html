@@ -1,0 +1,23 @@
+{% extends 'canteens/layout.html' %}
+
+{% block title %} Это кырат {% endblock %}
+
+{% block content %}
+    <h1>Это кырат</h1>
+
+    <!-- Кнопки переключения разделов -->
+        <a href="{% url 'kirat' %}"
+           class="btn btn-lg {% if active_section == 'canteen' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            Кырат
+        </a>
+        <a href="{% url 'chay_bahche' %}"
+           class="btn btn-lg {% if active_section == 'tea' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            Чай Бахче
+        </a>
+        <a href="{% url 'menu' %}"
+           class="btn btn-lg {% if active_section == 'menu' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            Полное меню
+        </a>
+
+    <p> Это кырат </p>
+{% endblock %}

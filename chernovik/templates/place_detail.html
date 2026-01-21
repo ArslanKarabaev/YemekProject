@@ -1,0 +1,80 @@
+{% extends 'layout.html' %}
+{% block title %}{{ place.name }}{% endblock %}
+{% block content %}
+
+<div class="max-w-3xl mx-auto mt-8 space-y-6">
+    <div class="bg-white shadow-lg rounded-2xl p-6">
+        <h2 class="text-2xl font-bold mb-2">{{ place.name }}</h2>
+        <div class="space-y-2 text-gray-700">
+            <p><strong>Рейтинг:</strong> ⭐ {{ place.rating }}</p>
+            <p><strong>Контакты:</strong>
+                {% if place.phone_number %} 📞 {{ place.phone_number }} {% endif %}
+                {% if place.website %} — 🌐 <a class="text-blue-600 underline" href="{{ place.website }}" target="_blank">Сайт</a> {% endif %}
+            </p>
+            {% if place.opening_hours %}
+            <div>
+                <strong>Часы работы:</strong>
+                <ul class="list-disc list-inside text-sm text-gray-600">
+                    {% for day in place.opening_hours %}
+                    <li>{{ day }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            <p>🗺 <a class="text-blue-600 underline" href="https://www.google.com/maps/place/?q=place_id:{{ place.place_id }}" target="_blank">Смотреть на карте</a></p>
+        </div>
+    </div>
+
+    <div class="bg-gray-50 p-6 rounded-xl shadow-inner">
+        <h3 class="text-xl font-semibold mb-4">Отзывы Манасовцев</h3>
+        {% if comments %}
+            {% for comment in comments %}
+            <div class="bg-white rounded-lg shadow p-4 mb-4" id="comment-{{ comment.id }}">
+                <div class="text-sm text-gray-500">
+                    <strong>{{ comment.user.username }}</strong> — 🕒 {{ comment.created_at|date:"d.m.Y H:i" }}
+                </div>
+                <p class="mt-2">{{ comment.text }}</p>
+                <div class="mt-2 flex gap-4 text-sm">
+                    <button class="hover:scale-105 transition" onclick="vote({{ comment.id }}, 'like')">
+                        👍 <span id="like-{{ comment.id }}">{{ comment.likes }}</span>
+                    </button>
+                    <button class="hover:scale-105 transition" onclick="vote({{ comment.id }}, 'dislike')">
+                        👎 <span id="dislike-{{ comment.id }}">{{ comment.dislikes }}</span>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>Пока нет отзывов наших студентов. Будь первым! 😉</p>
+        {% endif %}
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="bg-white p-6 rounded-xl shadow">
+        <h4 class="text-lg font-medium mb-4">Оставить комментарий</h4>
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Оставить комментарий</button>
+        </form>
+    </div>
+    {% else %}
+    <p><a class="text-blue-600 underline" href="{% url 'login' %}">Войдите</a>, чтобы комментировать</p>
+    {% endif %}
+
+    <div class="bg-white p-6 rounded-xl shadow">
+        <h3 class="text-xl font-semibold mb-4">Отзывы от пользователей Google</h3>
+        {% if place.google_reviews %}
+            {% for review in place.google_reviews %}
+            <div class="border-t border-gray-200 pt-4 mt-4">
+                <p><strong>{{ review.author_name }}</strong> — ⭐ {{ review.rating }}</p>
+                <p>{{ review.text }}</p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>Нет отзывов от пользователей Google</p>
+        {% endif %}
+    </div>
+</div>
+
+{%endblock%}

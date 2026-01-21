@@ -1,0 +1,174 @@
+{% extends 'canteens/layout.html' %}
+
+{% block title %}{{ place.name }}{% endblock %}
+
+{% block content %}
+<body class="canteen_detail">
+    <div class="main py-3">
+        <div class="canteen-buttons mb-5">
+            <h2 class="mb-3">Доступные кантины:</h2>
+            <div class="d-flex flex-wrap gap-3">
+                {% for canteen in canteens %}
+                    <a href="{% url 'canteen_detail' canteen.pk %}" class="btn canteen-btn">
+                        {% if canteen.image %}
+                            <img src="{{ canteen.image.url }}" alt="{{ canteen.name }}" class="canteen-thumbnail">
+                        {% endif %}
+                        {{ canteen.name }}
+                    </a>
+                {% empty %}
+                    <p>Нет доступных кантинов.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="canteen-header mb-4">
+            <div class="d-flex align-items-center flex-wrap">
+                <h1 class="mb-0 me-3">{{ place.name }}</h1>
+                <div class="d-flex align-items-center mt-2 mt-sm-0">
+                    {% if user.is_authenticated %}
+                    <div id="star-rating" data-place="{{ place.id }}" data-user-rating="{{ user_rating|default:0 }}" class="me-3">
+                        {% for i in "12345" %}
+                            <span class="star" data-value="{{ forloop.counter }}">&#9733;</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                        <small class="me-3"><a href="{% url 'login' %}">Войдите</a>, чтобы оценить.</small>
+                    {% endif %}
+                    <div>
+                        <small class="text-muted">Средняя:</small>
+                        <strong id="average-rating" class="ms-1">{{ place.average_rating|default:"-" }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            {% if place.image %}
+            <div class="canteen-main-image mt-3">
+                <img src="{{ place.image.url }}" alt="{{ place.name }}" class="img-fluid rounded">
+            </div>
+            {% endif %}
+        </div>
+
+        <hr>
+
+        <div class="reviews-container">
+            <h3 class="mb-3">Отзывы</h3>
+            <form method="post" class="mb-4 review-form">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="{{ form.text.id_for_label }}" class="form-label">Ваш отзыв</label>
+                    <textarea
+                        name="{{ form.text.name }}"
+                        id="{{ form.text.id_for_label }}"
+                        class="form-control review-textarea"
+                        rows="5"
+                        placeholder="Поделитесь вашими впечатлениями о кантине..."
+                    >{% if form.text.value %}{{ form.text.value }}{% endif %}</textarea>
+                    {% if form.text.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.text.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <button type="submit" class="btn submit-review-btn">
+                    <i class="fas fa-paper-plane me-2"></i>Отправить отзыв
+                </button>
+            </form>
+
+            <div class="reviews-list">
+                {% for comment in comments %}
+                    <div class="review-card card mb-3">
+                        <div class="card-body">
+                            <p class="review-header"><strong>{{ comment.user.username }}</strong> — {{ comment.created_at|date:"d.m.Y H:i" }}</p>
+                            <p class="review-text">{{ comment.text }}</p>
+                            <div class="review-votes">
+                                <button onclick="vote({{ comment.id }}, 'like')" class="btn btn-success btn-sm">❤️</button>
+                                <span id="likes-{{ comment.id }}">{{ comment.likes }}</span>
+                                <button onclick="vote({{ comment.id }}, 'dislike')" class="btn btn-danger btn-sm">👎</button>
+                                <span id="dislikes-{{ comment.id }}">{{ comment.dislikes }}</span>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="no-reviews">Отзывов пока нет.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Скрипты остаются без изменений -->
+    <script>
+    function vote(commentId, type) {
+        fetch(`/vote/${commentId}/${type}/`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById(`likes-${commentId}`).textContent = data.likes;
+                document.getElementById(`dislikes-${commentId}`).textContent = data.dislikes;
+            });
+    }
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const stars = document.querySelectorAll('#star-rating .star');
+        const ratingDiv = document.getElementById('star-rating');
+        if (ratingDiv) {
+            const userRating = parseInt(ratingDiv.dataset.userRating);
+            const placeId = ratingDiv.dataset.place;
+
+            if (userRating > 0) {
+                highlightStars(userRating);
+            }
+
+            stars.forEach(star => {
+                const value = parseInt(star.dataset.value);
+
+                star.addEventListener('mouseover', () => {
+                    highlightStars(value);
+                });
+
+                star.addEventListener('mouseout', () => {
+                    highlightStars(userRating);
+                });
+
+                star.addEventListener('click', () => {
+                    sendRating(value);
+                });
+            });
+
+            function highlightStars(count) {
+                stars.forEach(star => {
+                    const starValue = parseInt(star.dataset.value);
+                    if (starValue <= count) {
+                        star.classList.add('selected');
+                    } else {
+                        star.classList.remove('selected');
+                    }
+                });
+            }
+
+            function sendRating(value) {
+                fetch(`/rate/${placeId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `rating=${value}`
+                })
+                .then(res => res.json())
+                .then(data => {
+                    highlightStars(value);
+                    document.getElementById('average-rating').textContent = data.average_rating;
+                    const messageEl = document.getElementById('rating-message');
+                    if (messageEl) {
+                        messageEl.textContent = `Вы поставили ${value} звёзд.`;
+                    }
+                });
+            }
+        }
+    });
+    </script>
+</body>
+{% endblock %}

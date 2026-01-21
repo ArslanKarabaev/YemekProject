@@ -1,0 +1,14 @@
+{% extends 'canteens/layout.html' %}
+
+{% block content %}
+
+    <h2>Вход</h2>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Войти</button>
+  <p>До сих пор нет аккаунта? <a href="{% url 'register' %}">Создать аккаунт</a></p>
+</form>
+
+
+{% endblock %}

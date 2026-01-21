@@ -1,0 +1,40 @@
+{% extends 'canteens/layout.html' %}
+{% block title %}Кантины{% endblock %}
+
+{% block content %}
+<body class="menu">
+    <div class="main px-4 py-3">
+
+        <div class="canteen-buttons mb-5">
+            <h2 class="mb-3">Доступные кантины:</h2>
+            <div class="d-flex flex-wrap gap-3">
+                {% for canteen in canteens %}
+                    <a href="{% url 'canteen_detail' canteen.pk %}" class="btn canteen-btn">
+                    {% if canteen.image %}
+                            <img src="{{ canteen.image.url }}" alt="{{ canteen.name }}" class="canteen-thumbnail">
+                        {% endif %}
+                    {{ canteen.name }}</a>
+                {% empty %}
+                    <p>Нет доступных кантинов.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <h1 class="mb-4">Меню кантинов</h1>
+
+        <div class="row">
+            {% for meal in meals %}
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-4">
+                <div class="meal-card shadow-sm">
+                    {% if meal.image_url %}
+                    <img src="{{ meal.image_url }}" class="meal-img img-fluid rounded" alt="{{ meal.name }}">
+                    {% endif %}
+                    <h5 class="mt-3">{{ meal.name }}</h5>
+                    <p class="text-success fw-bold">{{ meal.price }} сом</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+{% endblock %}

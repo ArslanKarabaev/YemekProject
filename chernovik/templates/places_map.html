@@ -1,0 +1,44 @@
+{% extends 'layout.html' %}
+{% block title %}Карта заведений{% endblock %}
+{% block content %}
+
+<div class="max-w-4xl mx-auto mt-10 px-4 space-y-8">
+    <div class="bg-white rounded-2xl shadow p-6">
+        <h2 class="text-2xl font-bold mb-4">Заведения поблизости (радиус {{ radius }} м)</h2>
+        <form method="get" class="flex flex-col sm:flex-row items-center gap-4">
+            <div class="flex items-center gap-2">
+                <label for="radius" class="font-medium">Радиус (м):</label>
+                <input type="number" name="radius" min="100" max="50000" step="100" value="{{ radius }}" id="radius"
+                    class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Применить</button>
+                <button type="submit" name="refresh" value="1"
+                    class="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300 transition">Обновить</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="bg-gray-50 rounded-2xl shadow-inner p-6">
+        <h3 class="text-xl font-semibold mb-4">Список заведений</h3>
+        <ul class="space-y-4">
+            {% for place in places %}
+            <li class="bg-white p-4 rounded-lg shadow hover:shadow-md transition">
+                <a href="{% url 'chernovik:place_detail' place.place_id %}" class="text-lg font-medium text-blue-600 hover:underline">
+                    {{ place.name }}
+                </a>
+                <div class="text-sm text-gray-600 mt-1">
+                    Рейтинг: {{ place.rating }} | Расстояние: {{ place.calculated_distance }} м
+                    {% if place.opening_hours %}
+                    | Часы: {{ place.opening_hours|first }}
+                    {% endif %}
+                </div>
+            </li>
+            {% empty %}
+            <li class="text-gray-500">Нет заведений в радиусе</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+{%endblock%}
